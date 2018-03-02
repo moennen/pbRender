@@ -1,8 +1,8 @@
-# CMAKE FILE 
+# CMAKE FILE : testRenderGraph/moennen/2018-03-02
 
 CMAKE_MINIMUM_REQUIRED(VERSION 2.6) 
 
-PROJECT(pbTest)
+PROJECT(testRenderGraph)
 set(CMAKE_C_COMPILER gcc)
 ADD_DEFINITIONS( -DCOMPILER_GCC -std=gnu++0x )
 SET(CMAKE_COLOR_MAKEFILE ON)
@@ -15,7 +15,7 @@ SET(M_LIBS ${MOENNEN_LOCAL}/lib)
 SET(M_LIBS64 ${MOENNEN_LOCAL}/lib64)
 
 INCLUDE_DIRECTORIES(
-	${MOENNEN_WKSPCE}/pbRender/include
+	${MOENNEN_WKSPCE}
 	${M_INC}
 	${M_INC}/GL
 	${M_INC}/eigen3
@@ -25,7 +25,7 @@ LINK_DIRECTORIES(
 	${M_LIBS64}
 )
 
-ADD_EXECUTABLE(pbTest pbTest.cpp)
+ADD_EXECUTABLE(testRenderGraph testRenderGraph_main.cpp)
 
-TARGET_LINK_LIBRARIES( pbTest opencv_world boost_graph )
+TARGET_LINK_LIBRARIES( testRenderGraph boost_graph opencv_world )
 
