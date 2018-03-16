@@ -13,25 +13,6 @@
 template <class RenderNode, class RenderData>
 struct PbRenderGraph
 {
-   struct Data
-   {
-      size_t _node;
-      size_t _me;
-      RenderData _data;
-   };
-   vector<Data> _data;
-
-   struct Node
-   {
-      size_t _me;
-      size_t _outputDataStart;
-      size_T _outputDataNb;
-      vector<size_t> _inputData;
-      size_t _firstParent;
-      size_t _lastParent;
-   };
-   vector<Node> _nodes;
-
    struct Step
    {
       size_t _node;
