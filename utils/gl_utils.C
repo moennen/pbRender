@@ -18,58 +18,63 @@
 #include <iostream>
 #include <string>
 
+#include <assimp/cimport.h>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+
 #include <glm/gtc/type_ptr.hpp>
 
 using namespace glm;
 
-bool gl_utils::loadTriangleMesh(
-    const char* filename,
-    std::vector<size_t>& idx,
-    std::vector<glm::vec3>& vtx,
-    std::vector<glm::vec2>& uvs,
-    std::vector<glm::vec3> normals )
-{
+bool gl_utils::loadTriangleMesh(const char* filename, std::vector<size_t>& idx,
+                                std::vector<glm::vec3>& vtx,
+                                std::vector<glm::vec2>& uvs,
+                                std::vector<glm::vec3> normals) {
   Assimp::Importer importer;
 
-  const aiScene* scene = importer.ReadFile(path, 0/*aiProcess_JoinIdenticalVertices | aiProcess_SortByPType*/);
-  if( !scene) {
-    fprintf( stderr, importer.GetErrorString());
+  const aiScene* scene = importer.ReadFile(
+      path, 0 /*aiProcess_JoinIdenticalVertices | aiProcess_SortByPType*/);
+  if (!scene) {
+    fprintf(stderr, importer.GetErrorString());
     getchar();
     return false;
   }
-  const aiMesh* mesh = scene->mMeshes[0]; // In this simple example code we always use the 1rst mesh (in OBJ files there is often only one anyway)
+  const aiMesh* mesh =
+      scene->mMeshes[0];  // In this simple example code we always use the 1rst
+                          // mesh (in OBJ files there is often only one anyway)
 
   // Fill vertices positions
   vertices.reserve(mesh->mNumVertices);
-  for(unsigned int i=0; i<mesh->mNumVertices; i++){
+  for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     aiVector3D pos = mesh->mVertices[i];
     vertices.push_back(glm::vec3(pos.x, pos.y, pos.z));
   }
 
   // Fill vertices texture coordinates
   uvs.reserve(mesh->mNumVertices);
-  for(unsigned int i=0; i<mesh->mNumVertices; i++){
-    aiVector3D UVW = mesh->mTextureCoords[0][i]; // Assume only 1 set of UV coords; AssImp supports 8 UV sets.
+  for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
+    aiVector3D UVW = mesh->mTextureCoords[0][i];  // Assume only 1 set of UV
+                                                  // coords; AssImp supports 8
+                                                  // UV sets.
     uvs.push_back(glm::vec2(UVW.x, UVW.y));
   }
 
   // Fill vertices normals
   normals.reserve(mesh->mNumVertices);
-  for(unsigned int i=0; i<mesh->mNumVertices; i++){
+  for (unsigned int i = 0; i < mesh->mNumVertices; i++) {
     aiVector3D n = mesh->mNormals[i];
     normals.push_back(glm::vec3(n.x, n.y, n.z));
   }
 
-
   // Fill face indices
-  indices.reserve(3*mesh->mNumFaces);
-  for (unsigned int i=0; i<mesh->mNumFaces; i++){
+  indices.reserve(3 * mesh->mNumFaces);
+  for (unsigned int i = 0; i < mesh->mNumFaces; i++) {
     // Assume the model has only triangles.
     indices.push_back(mesh->mFaces[i].mIndices[0]);
     indices.push_back(mesh->mFaces[i].mIndices[1]);
     indices.push_back(mesh->mFaces[i].mIndices[2]);
   }
-  
+
   // The "scene" pointer will be deleted automatically by "importer"
 }
 
@@ -79,7 +84,8 @@ bool gl_utils::loadTriangleMesh(
    id = -1;
 }
 
-bool gl_utils::program::load( const char* vertex_file_path, const char* fragment_file_path )
+bool gl_utils::program::load( const char* vertex_file_path, const char*
+fragment_file_path )
 {
    // Create the shaders
    GLuint VertexShaderID = glCreateShader( GL_VERTEX_SHADER );
@@ -91,13 +97,15 @@ bool gl_utils::program::load( const char* vertex_file_path, const char* fragment
    if ( VertexShaderStream.is_open() )
    {
       std::string Line = "";
-      while ( getline( VertexShaderStream, Line ) ) VertexShaderCode += "\n" + Line;
+      while ( getline( VertexShaderStream, Line ) ) VertexShaderCode += "\n" +
+Line;
       VertexShaderStream.close();
    }
    else
    {
       printf(
-          "Impossible to open %s. Are you in the right directory ? Don't forget to read the FAQ "
+          "Impossible to open %s. Are you in the right directory ? Don't forget
+to read the FAQ "
           "!\n",
           vertex_file_path );
       getchar();
@@ -110,7 +118,8 @@ bool gl_utils::program::load( const char* vertex_file_path, const char* fragment
    if ( FragmentShaderStream.is_open() )
    {
       std::string Line = "";
-      while ( getline( FragmentShaderStream, Line ) ) FragmentShaderCode += "\n" + Line;
+      while ( getline( FragmentShaderStream, Line ) ) FragmentShaderCode += "\n"
++ Line;
       FragmentShaderStream.close();
    }
 
@@ -129,7 +138,8 @@ bool gl_utils::program::load( const char* vertex_file_path, const char* fragment
    if ( InfoLogLength > 0 )
    {
       std::vector<char> VertexShaderErrorMessage( InfoLogLength + 1 );
-      glGetShaderInfoLog( VertexShaderID, InfoLogLength, NULL, &VertexShaderErrorMessage[0] );
+      glGetShaderInfoLog( VertexShaderID, InfoLogLength, NULL,
+&VertexShaderErrorMessage[0] );
       printf( "%s\n", &VertexShaderErrorMessage[0] );
    }
 
@@ -145,7 +155,8 @@ bool gl_utils::program::load( const char* vertex_file_path, const char* fragment
    if ( InfoLogLength > 0 )
    {
       std::vector<char> FragmentShaderErrorMessage( InfoLogLength + 1 );
-      glGetShaderInfoLog( FragmentShaderID, InfoLogLength, NULL, &FragmentShaderErrorMessage[0] );
+      glGetShaderInfoLog( FragmentShaderID, InfoLogLength, NULL,
+&FragmentShaderErrorMessage[0] );
       printf( "%s\n", &FragmentShaderErrorMessage[0] );
    }
 
@@ -162,7 +173,8 @@ bool gl_utils::program::load( const char* vertex_file_path, const char* fragment
    if ( InfoLogLength > 0 )
    {
       std::vector<char> ProgramErrorMessage( InfoLogLength + 1 );
-      glGetProgramInfoLog( ProgramID, InfoLogLength, NULL, &ProgramErrorMessage[0] );
+      glGetProgramInfoLog( ProgramID, InfoLogLength, NULL,
+&ProgramErrorMessage[0] );
       printf( "%s\n", &ProgramErrorMessage[0] );
    }
 
@@ -196,13 +208,15 @@ GLint gl_utils::program::getUniform( const char* uniformName )
    return -1;
 }*/
 
-/*bool gl_utils::renderBuffer::create( size_t nAttachments, const glm::ivec2 isz, const bool depth )
+/*bool gl_utils::renderBuffer::create( size_t nAttachments, const glm::ivec2
+isz, const bool depth )
 {
    if ( nAttachments >= GL_MAX_COLOR_ATTACHMENTS ) return false;
 
    sz = isz;
 
-   // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
+   // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth
+buffer.
    glGenFramebuffers( 1, &id );
    glBindFramebuffer( GL_FRAMEBUFFER, id );
 
@@ -213,11 +227,13 @@ GLint gl_utils::program::getUniform( const char* uniformName )
       GLuint renderedTexture;
       glGenTextures( 1, &renderedTexture );
 
-      // "Bind" the newly created texture : all future texture functions will modify this texture
+      // "Bind" the newly created texture : all future texture functions will
+modify this texture
       glBindTexture( GL_TEXTURE_2D, renderedTexture );
 
       // Give an empty image to OpenGL ( the last "0" means "empty" )
-      glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, sz.x, sz.y, 0, GL_RGBA, GL_FLOAT, 0 );
+      glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, sz.x, sz.y, 0, GL_RGBA, GL_FLOAT,
+0 );
 
       attachIds[a] = renderedTexture;
    }
@@ -228,7 +244,8 @@ GLint gl_utils::program::getUniform( const char* uniformName )
       glGenTextures( 1, &depthId );
       glBindTexture( GL_TEXTURE_2D, depthId );
       glTexImage2D(
-          GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, sz.x, sz.y, 0, GL_DEPTH_COMPONENT, GL_FLOAT, 0 );
+          GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, sz.x, sz.y, 0,
+GL_DEPTH_COMPONENT, GL_FLOAT, 0 );
    }
 
    return true;
@@ -274,7 +291,8 @@ bool gl_utils::renderBuffer::bind()
       glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
       glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 
-      glFramebufferTexture( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + a, renderedTexture, 0 );
+      glFramebufferTexture( GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0 + a,
+renderedTexture, 0 );
 
       DrawBuffers[a] = GL_COLOR_ATTACHMENT0 + a;
    }
@@ -293,7 +311,8 @@ bool gl_utils::renderBuffer::bind()
    glDrawBuffers( attachIds.size(), &DrawBuffers[0] );
 
    // Always check that our framebuffer is ok
-   if ( glCheckFramebufferStatus( GL_FRAMEBUFFER ) != GL_FRAMEBUFFER_COMPLETE ) return false;
+   if ( glCheckFramebufferStatus( GL_FRAMEBUFFER ) != GL_FRAMEBUFFER_COMPLETE )
+return false;
 
    return true;
 }
@@ -327,18 +346,21 @@ bool gl_utils::renderBuffer::draw()
 
       glBindBuffer( GL_ARRAY_BUFFER, quadIds[0] );
       glBufferData(
-          GL_ARRAY_BUFFER, sizeof( g_quad_vertex ), value_ptr( g_quad_vertex[0] ), GL_STATIC_DRAW );
+          GL_ARRAY_BUFFER, sizeof( g_quad_vertex ), value_ptr( g_quad_vertex[0]
+), GL_STATIC_DRAW );
 
       glBindBuffer( GL_ARRAY_BUFFER, quadIds[1] );
       glBufferData(
-          GL_ARRAY_BUFFER, sizeof( g_quad_uv ), value_ptr( g_quad_uv[0] ), GL_STATIC_DRAW );
+          GL_ARRAY_BUFFER, sizeof( g_quad_uv ), value_ptr( g_quad_uv[0] ),
+GL_STATIC_DRAW );
    }
 
    // 1rst attribute buffer : vertices
    glEnableVertexAttribArray( 0 );
    glBindBuffer( GL_ARRAY_BUFFER, quadIds[0] );
    glVertexAttribPointer(
-       0,  // attribute 0. No particular reason for 0, but must match the layout in the shader.
+       0,  // attribute 0. No particular reason for 0, but must match the layout
+in the shader.
        3,  // size
        GL_FLOAT,  // type
        GL_FALSE,  // normalized?
@@ -358,20 +380,24 @@ bool gl_utils::renderBuffer::draw()
    );
 
    // Draw the triangles !
-   glDrawArrays( GL_TRIANGLES, 0, 6 );  // 2*3 indices starting at 0 -> 2 triangles
+   glDrawArrays( GL_TRIANGLES, 0, 6 );  // 2*3 indices starting at 0 -> 2
+triangles
 
    glDisableVertexAttribArray( 0 );
    glDisableVertexAttribArray( 1 );
 }
 
-bool gl_utils::renderBuffer::read( float* buff, const size_t buffSz, size_t attachement )
+bool gl_utils::renderBuffer::read( float* buff, const size_t buffSz, size_t
+attachement )
 {
-   if ( ( id == -1 ) || ( attachement >= attachIds.size() ) || ( attachIds[attachement] == -1 ) )
+   if ( ( id == -1 ) || ( attachement >= attachIds.size() ) || (
+attachIds[attachement] == -1 ) )
       return false;
 
    glNamedFramebufferReadBuffer( id, GL_COLOR_ATTACHMENT0 + attachement );
    glReadnPixels(
-       0, 0, sz.x, sz.y, GL_RGBA, GL_FLOAT, buffSz * sizeof( float ), (GLvoid*)buff );
+       0, 0, sz.x, sz.y, GL_RGBA, GL_FLOAT, buffSz * sizeof( float ),
+(GLvoid*)buff );
 
    return true;
 }
@@ -382,7 +408,8 @@ bool gl_utils::renderBuffer::readDepth( float* buff, const size_t buffSz )
 
    glNamedFramebufferReadBuffer( id, GL_DEPTH_ATTACHMENT );
    glReadnPixels(
-       0, 0, sz.x, sz.y, GL_RGBA, GL_FLOAT, buffSz * sizeof( float ), (GLvoid*)buff );
+       0, 0, sz.x, sz.y, GL_RGBA, GL_FLOAT, buffSz * sizeof( float ),
+(GLvoid*)buff );
 
    return true;
 }

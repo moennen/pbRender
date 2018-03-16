@@ -28,64 +28,47 @@
 
 #include <vector>
 
-namespace gl_utils
-{
-enum TextureFormat
-{
-   MONO_32FP,
-   RGB_32FP,
-   BGR_32FP,
-   RGBA_32FP,
-   DEPTH_32FP
+namespace gl_utils {
+enum TextureFormat { MONO_32FP, RGB_32FP, BGR_32FP, RGBA_32FP, DEPTH_32FP };
+
+template <TextureFormat fmt>
+struct Texture final {
+  Texture() : id(-1), sz(0u, 0u) {}
+  Texture(const glm::uvec2 size) : id(-1), sz(0u, 0u) { create(size); }
+  ~Texture() { reset(); }
+
+  bool create(const glm::uvec2 size);
+  void reset();
+
+  GLuint id;
+  glm::uvec2 sz;
 };
 
 template <TextureFormat fmt>
-struct Texture final
-{
-   Texture() : id( -1 ), sz( 0u, 0u ) {}
-   Texture( const glm::uvec2 size ) : id( -1 ), sz( 0u, 0u ) { create( size ); }
-   ~Texture() { reset(); }
+bool uploadToTexture(Texture<fmt>&, const unsigned char*);
 
-   bool create( const glm::uvec2 size );
-   void reset();
+template <TextureFormat fmt>
+bool uploadToTexture(Texture<fmt>&, const unsigned char*, const glm::uvec2 sz,
+                     const glm::uvec2 pos = glm::uvec2(0u, 0u));
 
-   GLuint id;
-   glm::uvec2 sz;
+template <TextureFormat fmt>
+bool readbackTexture(const Texture<fmt>&, unsigned char*);
+
+struct TrianglesMeshBuffer final {
+  trianglesMeshBuffer();
+  ~trianglesMeshBuffer() { reset(); }
+
+  bool load(const size_t nb, const size_t* idx, const glm::vec3* vtx,
+            const glm::vec2* uvs, const glm::vec3* normals);
+
+  void reset();
+
+  GLuint id;
 };
 
-template <TextureFormat fmt>
-bool uploadToTexture( Texture<fmt>&, const unsigned char* );
-
-template <TextureFormat fmt>
-bool uploadToTexture(
-    Texture<fmt>&,
-    const unsigned char*,
-    const glm::uvec2 sz,
-    const glm::uvec2 pos = glm::uvec2( 0u, 0u ) );
-
-template <TextureFormat fmt>
-bool readbackTexture( const Texture<fmt>&, unsigned char* );
-
-/*struct TrianglesMeshBuffer final
-{
-   trianglesMeshBuffer();
-   ~trianglesMeshBuffer() { reset(); }
-
-   bool load( const size_t nb,
-      const size_t* idx,
-      const glm::vec3* vtx, const glm::vec2* uvs, const glm::vec3* normals );
-
-   void reset();
-
-   GLuint id;
-};*/
-
-bool loadTriangleMesh(
-    const char* filename,
-    std::vector<size_t>& idx,
-    std::vector<glm::vec3>& vtx,
-    std::vector<glm::vec2>& uvs,
-    std::vector<glm::vec3> normals );
+bool loadTriangleMesh(const char* filename, std::vector<size_t>& idx,
+                      std::vector<glm::vec3>& vtx, std::vector<glm::vec2>& uvs,
+                      std::vector<glm::vec3> normals);
 
 /*
 struct renderProgram final
@@ -108,7 +91,8 @@ struct renderProgram final
    renderBuffer() : id( -1 ), depthId( -1 ), sz( 0, 0 ), quadIds{-1, -1} {}
    ~renderBuffer() { reset(); }
 
-   bool create( size_t nAttachments, const glm::ivec2 sz, const bool depth = false );
+   bool create( size_t nAttachments, const glm::ivec2 sz, const bool depth =
+false );
    void reset();
 
    glm::ivec2 size() const { return sz; }
